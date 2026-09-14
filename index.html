@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VidStarr — Shop Like a Starr</title>
+<meta name="description" content="VidStarr is a shoppable short-video app. Swipe through real product videos from real sellers, and buy what catches your eye — right from the feed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0D0D0D;
+    --surface:#1A0800;
+    --red:#FF3000;
+    --orange:#FF7A00;
+    --gold:#FFD700;
+    --white:#FFFFFF;
+    --muted:#888888;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg);
+    color:var(--white);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  a{color:inherit;text-decoration:none;}
+  :focus-visible{outline:2px solid var(--gold); outline-offset:3px;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- INTRO SPLASH ---------- */
+  #intro{
+    position:fixed; inset:0; z-index:999;
+    background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  #intro.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  .intro-sentence{
+    font-family:'Righteous', sans-serif;
+    font-size:clamp(20px, 4.5vw, 36px);
+    text-transform:none;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:0.32em;
+    padding:0 24px;
+    text-align:center;
+    line-height:1.3;
+  }
+  .intro-sentence .word{
+    opacity:0;
+    transform:translateY(22px);
+    transition:opacity .55s cubic-bezier(.22,.61,.36,1), transform .55s cubic-bezier(.22,.61,.36,1), color .5s ease;
+  }
+  .intro-sentence .word.show{ opacity:1; transform:translateY(0); }
+  .intro-sentence .word.fadeout{
+    opacity:0;
+    transform:translateY(-6px);
+    width:0;
+    margin:0 -0.175em;
+    overflow:hidden;
+    transition:opacity .3s ease, transform .3s ease, width .4s ease .15s, margin .4s ease .15s;
+  }
+  .intro-sentence .word.keep-vid{ color:var(--red); }
+  .intro-sentence .word.keep-starr{ color:var(--gold); }
+  .intro-logo{
+    position:absolute;
+    display:flex; align-items:center; gap:0;
+    font-family:'Righteous', sans-serif;
+    font-size:clamp(34px, 7.5vw, 60px);
+    text-transform:lowercase;
+    opacity:0;
+  }
+  .intro-logo.show{ animation:logoPop .5s ease forwards; }
+  @keyframes logoPop{
+    0%{ opacity:0; transform:scale(0.85); }
+    60%{ opacity:1; transform:scale(1.04); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+  .intro-logo .vid-part{ color:var(--red); }
+  .intro-logo .starr-part{ color:var(--gold); }
+  .intro-logo .intro-icon{
+    width:0;
+    opacity:0;
+    margin-right:0;
+    order:-1;
+    border-radius:14px;
+    transition:width .4s ease, opacity .4s ease, margin-right .4s ease;
+  }
+  .intro-logo .intro-icon.show{
+    width:1.5em; height:1.5em;
+    opacity:1;
+    margin-right:0.22em;
+  }
+
+  /* ---------- SHOPPING ICON MARQUEE ---------- */
+  .background-doodles{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    pointer-events:none;
+    overflow:hidden;
+  }
+
+  .marquee-container{
+    position:absolute;
+    display:flex;
+    gap:0;
+    will-change:transform;
+    width:100%;
+  }
+
+  .marquee-top{
+    top:20px;
+    left:0;
+    animation:marqueeRight 80s linear infinite;
+  }
+
+  .marquee-bottom{
+    bottom:-60px;
+    left:0;
+    animation:marqueeLeft 85s linear infinite;
+  }
+
+  @keyframes marqueeRight{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(calc(-1 * var(--marquee-width, 1000px))); }
+  }
+
+  @keyframes marqueeLeft{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(calc(var(--marquee-width, 1000px))); }
+  }
+
+  .marquee-strip{
+    position:relative;
+    height:140px;
+    flex-shrink:0;
+  }
+
+  .shopping-icon{
+    position:absolute;
+    flex-shrink:0;
+    transition:opacity 0.3s ease;
+  }
+
+  /* Size hierarchy: 70% tiny, 20% medium, 10% large */
+  .shopping-icon.tiny{ width:14px; height:14px; opacity:0.24; }
+  .shopping-icon.small{ width:16px; height:16px; opacity:0.26; }
+  .shopping-icon.medium{ width:24px; height:24px; opacity:0.32; }
+  .shopping-icon.large{ width:40px; height:40px; opacity:0.28; }
+
+  /* Hero glow on select large icons - sparse */
+  .shopping-icon.hero{
+    filter:drop-shadow(0 0 6px rgba(255,212,0,0.35));
+    opacity:0.42;
+  }
+
+  .shopping-icon svg{
+    width:100%;
+    height:100%;
+    color:var(--gold);
+    stroke:var(--orange);
+    stroke-width:1.2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+
+  .embers-stars{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:2;
+    pointer-events:none;
+  }
+
+  .ember{
+    position:absolute;
+    border-radius:50%;
+  }
+
+  .ember:nth-child(1){ width:4px; height:4px; top:10%; left:15%; background:var(--gold); animation:float 6s ease-in-out infinite; box-shadow:0 0 8px 2px rgba(255,212,0,0.8), 0 0 12px 3px rgba(255,106,0,0.5); }
+  .ember:nth-child(2){ width:3px; height:3px; top:25%; right:10%; background:var(--red); animation:float 7s ease-in-out infinite 0.5s; box-shadow:0 0 6px 1px rgba(255,48,0,0.8), 0 0 10px 2px rgba(255,106,0,0.4); }
+  .ember:nth-child(3){ width:4px; height:4px; top:50%; left:8%; background:var(--gold); animation:float 8s ease-in-out infinite 1s; box-shadow:0 0 8px 2px rgba(255,212,0,0.8), 0 0 12px 3px rgba(255,106,0,0.5); }
+  .ember:nth-child(4){ width:3px; height:3px; top:70%; right:20%; background:var(--red); animation:float 6.5s ease-in-out infinite 1.5s; box-shadow:0 0 6px 1px rgba(255,48,0,0.7), 0 0 10px 2px rgba(255,106,0,0.4); }
+  .ember:nth-child(5){ width:5px; height:5px; top:35%; right:25%; background:var(--gold); animation:float 7.5s ease-in-out infinite 0.2s; box-shadow:0 0 10px 2px rgba(255,212,0,0.9), 0 0 15px 4px rgba(255,106,0,0.6); }
+  .ember:nth-child(6){ width:3px; height:3px; top:65%; left:25%; background:var(--red); animation:float 6.2s ease-in-out infinite 2s; box-shadow:0 0 6px 1px rgba(255,48,0,0.8), 0 0 10px 2px rgba(255,106,0,0.4); }
+  .ember:nth-child(7){ width:4px; height:4px; top:15%; right:40%; background:var(--gold); animation:float 8.5s ease-in-out infinite 0.8s; box-shadow:0 0 8px 2px rgba(255,212,0,0.8), 0 0 12px 3px rgba(255,106,0,0.5); }
+  .ember:nth-child(8){ width:4px; height:4px; top:80%; right:35%; background:var(--red); animation:float 7.2s ease-in-out infinite 1.2s; box-shadow:0 0 8px 2px rgba(255,48,0,0.8), 0 0 12px 3px rgba(255,106,0,0.5); }
+
+  .star-ember{
+    filter:drop-shadow(0 0 8px rgba(255,212,0,0.8)) drop-shadow(0 0 12px rgba(255,106,0,0.5));
+  }
+
+  .star-ember:nth-of-type(2){ animation:float 6.8s ease-in-out infinite 0.3s; }
+  .star-ember:nth-of-type(4){ animation:float 7.5s ease-in-out infinite 1s; }
+  .star-ember:nth-of-type(6){ animation:float 8s ease-in-out infinite 1.8s; }
+  .star-ember:nth-of-type(8){ animation:float 6.3s ease-in-out infinite 0.7s; }
+
+  @keyframes float{
+    0%, 100%{ transform:translateY(0px) translateX(0px); opacity:0.9; }
+    50%{ transform:translateY(-25px) translateX(12px); opacity:1; }
+  }
+
+
+
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(13,13,13,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:72px;}
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Righteous', sans-serif;
+    font-size:20px;
+    letter-spacing:0.5px;
+  }
+  .logo img{ width:32px; height:32px; border-radius:8px; }
+  .logo span{color:var(--red);}
+  .nav-cta{
+    background:var(--red);
+    color:var(--white);
+    padding:10px 22px;
+    border-radius:999px;
+    font-weight:600;
+    font-size:14px;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{ transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,48,0,0.35); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:96px 0 120px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22400%22%20viewBox%3D%220%200%20400%20400%22%3E%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FF7A00%22%20stroke-width%3D%222%22%20opacity%3D%220.18%22%3E%0A%20%20%3C%21--%20shopping%20bag%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2820%2C20%29%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M5%2012%20L5%2035%20L30%2035%20L30%2012%20Z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M11%2012%20V8%20a6%206%200%200%201%2012%200%20V12%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3C%21--%20play%20button%20--%3E%0A%20%20%3Ccircle%20cx%3D%22120%22%20cy%3D%2230%22%20r%3D%2216%22/%3E%0A%20%20%3Cpath%20d%3D%22M115%2023%20L130%2030%20L115%2037%20Z%22%20fill%3D%22%23FF7A00%22/%3E%0A%20%20%3C%21--%20price%20tag%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%28180%2C15%29%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M2%2014%20L16%200%20L34%200%20L34%2018%20L20%2032%20Z%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%229%22%20r%3D%222.5%22%20fill%3D%22%23FF7A00%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3C%21--%20heart%20--%3E%0A%20%20%3Cpath%20d%3D%22M280%2035%20C275%2025%2C%20260%2025%2C%20260%2038%20C260%2048%2C%20280%2058%2C%20280%2058%20C280%2058%2C%20300%2048%2C%20300%2038%20C300%2025%2C%20285%2025%2C%20280%2035%20Z%22%20transform%3D%22translate%280%2C-15%29%22/%3E%0A%20%20%3C%21--%20star%20--%3E%0A%20%20%3Cpath%20d%3D%22M350%2010%20L354%2022%20L367%2022%20L357%2030%20L361%2042%20L350%2035%20L339%2042%20L343%2030%20L333%2022%20L346%2022%20Z%22/%3E%0A%20%20%3C%21--%20cart%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2820%2C90%29%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M0%200%20L6%200%20L12%2025%20L34%2025%20L40%208%20L10%208%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2214%22%20cy%3D%2233%22%20r%3D%223%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2230%22%20cy%3D%2233%22%20r%3D%223%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3C%21--%20bookmark%20--%3E%0A%20%20%3Cpath%20d%3D%22M120%2090%20L120%20120%20L130%20112%20L140%20120%20L140%2090%20Z%22%20transform%3D%22translate%280%2C0%29%22/%3E%0A%20%20%3C%21--%20comment%20bubble%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%28190%2C90%29%22%3E%0A%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%2236%22%20height%3D%2226%22%20rx%3D%226%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M8%2026%20L8%2034%20L16%2026%20Z%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3C%21--%20share%20arrow%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%28270%2C95%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%224%22%20cy%3D%224%22%20r%3D%224%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%224%22%20cy%3D%2220%22%20r%3D%224%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2220%22%20cy%3D%2212%22%20r%3D%224%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M7%206%20L17%2011%20M7%2018%20L17%2013%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3C%21--%20star%202%20--%3E%0A%20%20%3Cpath%20d%3D%22M70%20130%20L73%20139%20L83%20139%20L75%20145%20L78%20154%20L70%20148%20L62%20154%20L65%20145%20L57%20139%20L67%20139%20Z%22/%3E%0A%3C/g%3E%0A%3C/svg%3E");
+    background-size:400px 400px;
+    background-repeat:repeat;
+    opacity:0.7;
+    pointer-events:none;
+    z-index:0;
+    mask-image:radial-gradient(ellipse 90% 70% at 50% 30%, black 40%, transparent 90%);
+    -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 30%, black 40%, transparent 90%);
+  }
+  .hero-glow{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:3px;
+    background:linear-gradient(90deg, transparent, var(--red) 20%, var(--orange) 50%, var(--gold) 80%, transparent);
+    pointer-events:none;
+    z-index:0;
+  }
+  .ember-dot{
+    position:absolute;
+    pointer-events:none;
+    z-index:0;
+    animation:floaty 5s ease-in-out infinite, twinkle 2.4s ease-in-out infinite;
+    clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+  @keyframes twinkle{
+    0%,100%{ filter:brightness(1); }
+    50%{ filter:brightness(1.6); }
+  }
+  @keyframes floaty{
+    0%,100%{ transform:translateY(0); opacity:0.5; }
+    50%{ transform:translateY(-18px); opacity:1; }
+  }
+  .hero-grid{
+    position:relative; z-index:1;
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:64px;
+    align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    color:var(--gold);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin-bottom:24px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:8px;height:8px;border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 12px var(--gold);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  h1{
+    font-family:'Righteous', sans-serif;
+    font-size:clamp(52px, 9vw, 96px);
+    line-height:0.96;
+    letter-spacing:-1px;
+    margin-bottom:24px;
+    text-transform:uppercase;
+  }
+  h1 .accent{
+    background:linear-gradient(100deg, var(--gold), var(--orange) 50%, var(--red));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 0 30px rgba(255,122,0,0.55));
+    position:relative;
+  }
+
+  .sub{
+    color:var(--muted);
+    font-size:18px;
+    line-height:1.6;
+    max-width:480px;
+    margin-bottom:36px;
+  }
+
+  .cta-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 26px;
+    border-radius:14px;
+    font-weight:600;
+    font-size:15px;
+    transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .btn-primary{
+    background:var(--red);
+    color:var(--white);
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,48,0,0.4); }
+  .btn-secondary{
+    background:transparent;
+    color:var(--white);
+    border:1.5px solid rgba(255,255,255,0.18);
+  }
+  .btn-secondary:hover{ border-color:var(--gold); color:var(--gold); }
+  .btn svg{width:20px;height:20px;flex-shrink:0;}
+
+  /* ---------- PHONE MOCK / SIGNATURE ---------- */
+  .phone-stage{
+    position:relative;
+    display:flex; justify-content:center;
+    perspective:1200px;
+  }
+  .stage-ember{
+    position:absolute;
+    pointer-events:none;
+    z-index:4;
+    animation:floaty2 4s ease-in-out infinite, twinkle 2s ease-in-out infinite;
+    clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+  @keyframes floaty2{
+    0%,100%{ transform:translate(0,0); opacity:0.4; }
+    50%{ transform:translate(8px,-22px); opacity:1; }
+  }
+  .phone{
+    position:relative;
+    width:260px; height:540px;
+    border-radius:36px;
+    background:linear-gradient(160deg, #1a1a1a, #000);
+    border:2px solid rgba(255,255,255,0.08);
+    box-shadow:0 40px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
+    overflow:hidden;
+    z-index:3;
+  }
+  .phone-notch{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:90px; height:18px; border-radius:10px;
+    background:#000; z-index:5;
+  }
+  .feed-track{
+    position:absolute; inset:0;
+    display:flex;
+    flex-direction:column;
+    transform:translateY(0);
+    transition:transform .55s cubic-bezier(.22,.61,.36,1);
+    will-change:transform;
+  }
+  .feed-card{
+    position:relative;
+    width:100%; height:100%;
+    flex-shrink:0;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    padding:22px 18px;
+    overflow:hidden;
+    background:#080808;
+  }
+  .feed-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:0;
+    background:#000;
+  }
+  .feed-shade{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    background:linear-gradient(
+      to bottom,
+      rgba(0,0,0,.10) 0%,
+      rgba(0,0,0,.04) 42%,
+      rgba(0,0,0,.30) 66%,
+      rgba(0,0,0,.88) 100%
+    );
+    pointer-events:none;
+  }
+  .feed-card .top-row,
+  .feed-card .price-tag,
+  .feed-card h3,
+  .feed-card p.cap,
+  .feed-card .feed-buy{
+    position:relative;
+    z-index:2;
+  }
+  .feed-card .top-row{
+    position:absolute; top:18px; left:18px; right:18px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .feed-card .timer{
+    background:rgba(0,0,0,0.55);
+    color:var(--gold);
+    font-family:'Righteous', sans-serif;
+    font-size:11px;
+    padding:4px 9px;
+    border-radius:8px;
+    border:1px solid rgba(255,215,0,0.4);
+  }
+  .feed-card .price-tag{
+    align-self:flex-start;
+    background:var(--gold);
+    color:#1A0800;
+    font-weight:700;
+    font-size:13px;
+    padding:5px 12px;
+    border-radius:999px;
+    margin-bottom:10px;
+  }
+  .feed-card h3{ font-size:17px; font-weight:700; margin-bottom:4px; }
+  .feed-card p.cap{ color:rgba(255,255,255,0.6); font-size:12px; margin-bottom:14px;}
+  .feed-buy{
+    background:var(--red); color:var(--white);
+    text-align:center; padding:11px;
+    border-radius:10px; font-weight:600; font-size:14px;
+  }
+  .card-1{background:radial-gradient(circle at 70% 20%, #3a1200, #150400 70%);}
+  .card-2{background:radial-gradient(circle at 30% 25%, #381a00, #120600 70%);}
+  .card-3{background:radial-gradient(circle at 60% 15%, #2c0d18, #120308 70%);}
+  .card-4{background:radial-gradient(circle at 70% 20%, #3a1200, #150400 70%);}
+
+  .phone-ember{
+    position:absolute;
+    width:420px; height:420px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,122,0,0.35), transparent 65%);
+    filter:blur(10px);
+    z-index:1;
+    animation:embershift 6s ease-in-out infinite;
+  }
+  @keyframes embershift{
+    0%,100%{ transform:translate(-30px,-10px) scale(1); }
+    50%{ transform:translate(20px,20px) scale(1.08); }
+  }
+
+  .swipe-hint{
+    position:absolute; right:-6px; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    color:var(--muted); font-size:11px; z-index:4;
+  }
+  .swipe-hint svg{ animation:bob 1.6s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how{ padding:100px 0; border-top:1px solid rgba(255,255,255,0.06); }
+  .section-head{ max-width:560px; margin-bottom:64px; }
+  .section-head .eyebrow{ margin-bottom:16px; }
+  .section-head h2{
+    font-family:'Righteous', sans-serif;
+    font-size:clamp(28px,4vw,40px);
+    line-height:1.1;
+    margin-bottom:14px;
+  }
+  .section-head p{ color:var(--muted); font-size:16px; line-height:1.6; }
+
+  .steps{
+    display:flex;
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    overflow:hidden;
+  }
+  .step{
+    flex:1;
+    background:var(--surface);
+    padding:36px 28px;
+    position:relative;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .step:last-child{ border-right:none; }
+  .step .clock{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Righteous', sans-serif;
+    font-size:13px;
+    color:var(--gold);
+    margin-bottom:22px;
+    letter-spacing:0.5px;
+  }
+  .step .clock svg{ width:14px; height:14px; }
+  .step h3{ font-size:19px; margin-bottom:10px; font-weight:700; }
+  .step p{ color:var(--muted); font-size:15px; line-height:1.6; }
+  .step::before{
+    content:'';
+    position:absolute; top:0; left:0;
+    width:100%; height:3px;
+    background:var(--red);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .4s ease;
+  }
+  .step:hover::before{ transform:scaleX(1); }
+
+  /* ---------- CTA BAND ---------- */
+  .cta-band{
+    padding:110px 0;
+    text-align:center;
+    position:relative;
+    border-top:1px solid rgba(255,255,255,0.06);
+  }
+  .cta-band-glow{
+    position:absolute; top:0; left:0; right:0;
+    height:3px;
+    background:linear-gradient(90deg, transparent, var(--gold) 20%, var(--orange) 50%, var(--red) 80%, transparent);
+    pointer-events:none;
+  }
+  .cta-band h2{
+    font-family:'Righteous', sans-serif;
+    font-size:clamp(32px,5vw,52px);
+    margin-bottom:18px;
+    position:relative;
+  }
+  .cta-band p{ color:var(--muted); font-size:17px; margin-bottom:40px; position:relative;}
+  .store-row{ display:flex; gap:16px; justify-content:center; flex-wrap:wrap; position:relative; }
+  .store-btn{
+    display:flex; align-items:center; gap:12px;
+    background:var(--white); color:#0D0D0D;
+    padding:14px 26px; border-radius:14px;
+    font-weight:600;
+    transition:transform .2s ease;
+  }
+  .store-btn:hover{ transform:translateY(-3px); }
+  .store-btn svg{ width:24px; height:24px; }
+  .store-btn .label-stack{ text-align:left; line-height:1.2; }
+  .store-btn .small{ font-size:11px; color:var(--muted); display:block; }
+  .store-btn .big{ font-size:15px; font-weight:700; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:36px 0;
+    border-top:1px solid rgba(255,255,255,0.06);
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+  }
+  footer .logo{ font-size:15px; margin-bottom:6px; display:block; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:860px){
+    .hero-grid{ grid-template-columns:1fr; gap:56px; text-align:center; }
+    .sub{ margin-left:auto; margin-right:auto; }
+    .cta-row{ justify-content:center; }
+    .phone-stage{ order:-1; }
+    .steps{ grid-template-columns:1fr; }
+    .swipe-hint{ display:none; }
+  }
+
+  /* ---------- RESPONSIVE HERO POSITIONING ---------- */
+  /* Keep the hero composition tied to the viewport instead of fixed pixel nudges. */
+  .hero{
+    min-height:calc(100svh - 72px);
+    display:flex;
+    align-items:flex-start;
+  }
+
+  .hero-grid{
+    width:100%;
+    align-items:start;
+    padding-top:clamp(82px, 10vh, 108px);
+    padding-bottom:clamp(24px, 4vh, 48px);
+  }
+
+  .hero-grid > div:first-child{
+    align-self:start;
+    transform:translate(-18px, -22px);
+  }
+
+  .phone-stage{
+    align-self:start;
+    transform:translateY(-8px);
+  }
+
+  @media (max-width: 1180px){
+    .hero-grid{
+      gap:clamp(28px, 4vw, 52px);
+      padding-top:clamp(50px, 7vh, 82px);
+    }
+    .hero-grid > div:first-child{
+      transform:none;
+    }
+    .phone-stage{
+      transform:translateY(-6px);
+    }
+  }
+
+  @media (max-width: 900px){
+    .hero{
+      min-height:auto;
+      align-items:flex-start;
+    }
+    .hero-grid{
+      grid-template-columns:1fr;
+      gap:36px;
+      padding-top:72px;
+      padding-bottom:48px;
+    }
+    .hero-grid > div:first-child,
+    .phone-stage{
+      transform:none;
+    }
+  }
+
+  @media (max-height: 760px) and (min-width: 901px){
+    .hero-grid{
+      padding-top:58px;
+      padding-bottom:20px;
+    }
+    .hero-grid > div:first-child{
+      transform:none;
+    }
+    .phone-stage{
+      transform:translateY(-4px);
+    }
+  }
+
+
+  /* Final desktop hero-copy position override */
+  @media (min-width: 901px){
+    .hero-grid > div:first-child{
+      transform:translate(-28px, -28px) !important;
+    }
+  }
+
+
+  /* Direct positioning for the actual left hero-copy wrapper */
+  @media (min-width: 901px){
+    .hero-copy{
+      position:relative;
+      top:-34px;
+      left:-32px;
+      transform:none !important;
+    }
+  }
+
+  @media (max-width: 900px){
+    .hero-copy{
+      position:relative;
+      top:0;
+      left:0;
+      transform:none !important;
+    }
+  }
+
+
+  /* Phone refinement based on v13: higher + slightly smaller on desktop */
+  @media (min-width: 901px){
+    .phone-stage{
+      transform:translateY(-62px) !important;
+    }
+    .phone{
+      width:242px;
+      height:502px;
+    }
+  }
+
+  @media (max-width: 900px){
+    .phone-stage{
+      transform:none !important;
+    }
+  }
+
+
+  /* Final direct phone positioning override */
+  @media (min-width: 901px){
+    .hero-phone-stage{
+      position:relative !important;
+      top:-92px !important;
+      transform:none !important;
+    }
+
+    .hero-phone-stage .phone{
+      width:242px !important;
+      height:502px !important;
+    }
+  }
+
+  @media (max-width: 900px){
+    .hero-phone-stage{
+      top:0 !important;
+      transform:none !important;
+    }
+  }
+
+
+  /* ---------- VIDSTARR PHONE APP UI ---------- */
+  .phone{position:relative;}
+  .feed-card{padding:0 !important;}
+  .feed-card .top-row{top:16px;left:16px;right:auto;}
+  .feed-content{position:absolute;left:14px;right:14px;bottom:58px;z-index:4;}
+  .feed-card .price-tag{
+    display:inline-flex;align-items:center;justify-content:center;width:max-content;
+    background:var(--gold);color:#1A0800;font-weight:800;font-size:12px;line-height:1;
+    padding:6px 10px;border-radius:999px;margin:0 0 8px 0;box-shadow:0 4px 14px rgba(0,0,0,.24);
+  }
+  .feed-card h3{
+    color:#fff;font-size:16px;line-height:1.15;margin:0 0 12px 0;max-width:76%;
+    text-shadow:0 2px 10px rgba(0,0,0,.55);
+  }
+  .feed-card p.cap{display:none;}
+  .feed-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;}
+  .feed-buy,.feed-cart{
+    height:38px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:13px;line-height:1;box-sizing:border-box;cursor:pointer;user-select:none;
+  }
+  .feed-buy{background:var(--red);color:#fff;border:1.5px solid var(--red);}
+  .feed-cart{background:rgba(20,6,0,.88);color:var(--orange);border:1.5px solid var(--orange);backdrop-filter:blur(5px);}
+  .feed-side-actions{
+    position:absolute;right:9px;bottom:138px;z-index:5;display:flex;flex-direction:column;
+    gap:14px;align-items:center;
+  }
+  .feed-icon-btn{
+    width:28px;height:28px;display:grid;place-items:center;color:#fff;
+    filter:drop-shadow(0 2px 5px rgba(0,0,0,.55));
+  }
+  .feed-icon-btn svg{
+    width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  .feed-icon-btn.more{font-size:22px;font-weight:700;letter-spacing:1px;line-height:1;}
+  .phone-bottom-nav{
+    position:absolute;left:0;right:0;bottom:0;height:48px;z-index:8;display:grid;
+    grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(20,13,10,.93);
+    border-top:1px solid rgba(255,122,0,.32);backdrop-filter:blur(9px);
+  }
+  .phone-bottom-nav .nav-item{
+    display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.56);height:100%;
+  }
+  .phone-bottom-nav .nav-item.active{color:var(--red);}
+  .phone-bottom-nav svg{
+    width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  .phone-bottom-nav .nav-live{
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;
+  }
+  .feed-shade{
+    background:linear-gradient(to bottom,rgba(0,0,0,.08) 0%,rgba(0,0,0,.02) 48%,
+      rgba(0,0,0,.20) 68%,rgba(0,0,0,.70) 86%,rgba(0,0,0,.86) 100%);
+  }
+
+
+  /* ---------- v20 feed proportion refinements ---------- */
+  @media (min-width:901px){
+    .hero-phone-stage .phone{
+      width:258px !important;
+      height:502px !important;
+    }
+  }
+
+  /* Reference order: title first, then yellow price */
+  .feed-content{
+    bottom:58px !important;
+  }
+  .feed-card h3{
+    margin:0 0 8px 0 !important;
+    max-width:80% !important;
+  }
+  .feed-card .price-tag{
+    margin:0 0 10px 0 !important;
+  }
+
+  /* Slightly shorter commerce controls */
+  .feed-buy,
+  .feed-cart{
+    height:32px !important;
+    font-size:12px !important;
+  }
+
+  /* Smaller and slightly lower right-side actions */
+  .feed-side-actions{
+    right:8px !important;
+    bottom:118px !important;
+    gap:12px !important;
+  }
+  .feed-icon-btn{
+    width:24px !important;
+    height:24px !important;
+  }
+  .feed-icon-btn svg{
+    width:20px !important;
+    height:20px !important;
+  }
+  .feed-icon-btn.more{
+    font-size:18px !important;
+  }
+
+
+  /* ---------- v21 subtle sizing refinements ---------- */
+  .feed-buy,
+  .feed-cart{
+    height:29px !important;
+  }
+
+  .feed-card h3{
+    font-size:14.5px !important;
+  }
+
+
+  /* ---------- v22 single-line product titles ---------- */
+  .feed-card h3{
+    font-size:13px !important;
+    max-width:90% !important;
+    width:90% !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    line-height:1.15 !important;
+  }
+
+
+  /* ---------- v23 subtle UI scale-down ---------- */
+  .feed-card h3{font-size:12.5px !important;}
+  .feed-card .price-tag{font-size:11px !important;padding:5px 9px !important;}
+  .feed-buy,.feed-cart{height:27px !important;font-size:11px !important;}
+  .feed-icon-btn{width:22px !important;height:22px !important;}
+  .feed-icon-btn svg{width:18px !important;height:18px !important;}
+  .feed-icon-btn.more{font-size:16px !important;}
+  .phone-bottom-nav svg{width:17px !important;height:17px !important;}
+  .phone-bottom-nav .nav-live{font-size:10px !important;}
+
+
+  /* ---------- v24 bottom-nav + cart refinement ---------- */
+  .phone-bottom-nav{
+    height:42px !important;
+    background:rgba(48,24,20,.96) !important;
+    border-top:1px solid rgba(255,122,0,.38) !important;
+    box-shadow:0 -4px 16px rgba(120,35,12,.12) !important;
+  }
+
+  .feed-content{
+    bottom:52px !important;
+  }
+
+  .feed-cart{
+    border-width:1px !important;
+  }
+
+
+  /* ---------- v25 subtle nav-height reduction ---------- */
+  .phone-bottom-nav{
+    height:39px !important;
+  }
+
+  .feed-content{
+    bottom:49px !important;
+  }
+
+
+  /* ---------- v26 another subtle nav-height reduction ---------- */
+  .phone-bottom-nav{
+    height:36px !important;
+  }
+
+  .feed-content{
+    bottom:46px !important;
+  }
+
+
+  /* ---------- v27 video-first UI refinement ---------- */
+  .feed-card h3{
+    font-size:11.75px !important;
+    margin-bottom:6px !important;
+  }
+
+  .feed-card .price-tag{
+    font-size:10px !important;
+    padding:4px 8px !important;
+    margin-bottom:7px !important;
+  }
+
+  .feed-buy,
+  .feed-cart{
+    height:24px !important;
+    font-size:10px !important;
+  }
+
+  .feed-actions{
+    gap:6px !important;
+  }
+
+  .feed-side-actions{
+    gap:10px !important;
+    bottom:105px !important;
+  }
+
+  .feed-icon-btn{
+    width:20px !important;
+    height:20px !important;
+  }
+
+  .feed-icon-btn svg{
+    width:16px !important;
+    height:16px !important;
+  }
+
+  .feed-icon-btn.more{
+    font-size:14px !important;
+  }
+
+  .phone-bottom-nav{
+    height:32px !important;
+  }
+
+  .phone-bottom-nav svg{
+    width:15px !important;
+    height:15px !important;
+  }
+
+  .phone-bottom-nav .nav-live{
+    font-size:9px !important;
+  }
+
+  .feed-content{
+    bottom:41px !important;
+  }
+
+
+  /* v28 subtle LIVE indicator */
+  .phone-bottom-nav .nav-live{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:3px !important;
+  }
+  .live-dot{
+    width:5px;height:5px;border-radius:50%;
+    background:var(--red);
+    box-shadow:0 0 5px rgba(255,59,48,.7);
+    animation:vidstarrLivePulse 1.25s ease-in-out infinite;
+    flex:0 0 auto;
+  }
+  @keyframes vidstarrLivePulse{
+    0%,100%{opacity:.35;transform:scale(.82);}
+    50%{opacity:1;transform:scale(1.12);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .live-dot{animation:none;opacity:1;}
+  }
+
+
+  /* ---------- v29 emphasized LIVE shopping badge ---------- */
+  .phone-bottom-nav .nav-live{
+    gap:4px !important;
+    padding:0 7px !important;
+    height:20px !important;
+    align-self:center !important;
+    border:1px solid rgba(255,95,25,.9) !important;
+    border-radius:999px !important;
+    background:rgba(45,10,4,.72) !important;
+    box-shadow:
+      0 0 0 rgba(255,72,0,0),
+      inset 0 0 8px rgba(255,80,0,.08) !important;
+    color:#ff7a00 !important;
+    animation:vidstarrLiveBadgePulse 1.4s ease-in-out infinite !important;
+  }
+
+  .phone-bottom-nav .nav-live span:last-child{
+    font-weight:800 !important;
+    letter-spacing:.6px !important;
+  }
+
+  .live-dot{
+    width:5px !important;
+    height:5px !important;
+    background:#ff3b00 !important;
+    box-shadow:0 0 6px rgba(255,59,0,.85) !important;
+  }
+
+  @keyframes vidstarrLiveBadgePulse{
+    0%,100%{
+      box-shadow:
+        0 0 0 rgba(255,72,0,0),
+        inset 0 0 8px rgba(255,80,0,.08);
+      border-color:rgba(255,95,25,.72);
+      transform:scale(1);
+    }
+    50%{
+      box-shadow:
+        0 0 9px rgba(255,72,0,.32),
+        inset 0 0 10px rgba(255,80,0,.14);
+      border-color:rgba(255,145,35,1);
+      transform:scale(1.035);
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .phone-bottom-nav .nav-live{
+      animation:none !important;
+    }
+  }
+
+
+  /* ---------- v30 subtle LIVE treatment ---------- */
+  .phone-bottom-nav .nav-live{
+    gap:3px !important;
+    padding:0 !important;
+    height:100% !important;
+    border:none !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    color:rgba(255,255,255,.72) !important;
+    animation:none !important;
+    transform:none !important;
+  }
+
+  .phone-bottom-nav .nav-live span:last-child{
+    font-weight:700 !important;
+    letter-spacing:.5px !important;
+  }
+
+  .live-dot{
+    width:5px !important;
+    height:5px !important;
+    background:#ff4a1f !important;
+    box-shadow:0 0 5px rgba(255,74,31,.78) !important;
+    animation:vidstarrSubtleLivePulse 1.25s ease-in-out infinite !important;
+  }
+
+  @keyframes vidstarrSubtleLivePulse{
+    0%,100%{opacity:.48;transform:scale(.88);}
+    50%{opacity:1;transform:scale(1.12);}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .live-dot{
+      animation:none !important;
+      opacity:1 !important;
+    }
+  }
+
+
+  /* ---------- v32 appended live-shopping cards ---------- */
+  .live-shopping-card .feed-shade{
+    background:linear-gradient(to bottom,rgba(0,0,0,.02) 0%,rgba(0,0,0,0) 56%,rgba(0,0,0,.14) 74%,rgba(0,0,0,.68) 100%) !important;
+  }
+  .live-shopping-card .feed-side-actions{
+    right:8px !important;
+    bottom:118px !important;
+  }
+  .live-shopping-product-card{
+    position:absolute;left:8px;right:8px;bottom:40px;z-index:6;
+    display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;padding:7px;
+    border-radius:13px;
+    background:linear-gradient(135deg,rgba(43,20,13,.95),rgba(10,7,6,.93));
+    border:1px solid rgba(255,122,0,.22);
+    box-shadow:0 8px 24px rgba(0,0,0,.34),inset 0 0 18px rgba(255,70,0,.04);
+    backdrop-filter:blur(8px);
+  }
+  .live-shopping-product-image{
+    width:62px;height:62px;object-fit:cover;border-radius:11px;
+    border:1px solid rgba(255,255,255,.12);box-shadow:0 3px 10px rgba(0,0,0,.28);
+  }
+  .live-shopping-product-main{min-width:0;display:flex;flex-direction:column;justify-content:center;}
+  .live-shopping-title{
+    color:#fff;font-size:9.5px;font-weight:700;line-height:1.1;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;
+  }
+  .live-shopping-price{color:var(--gold);font-size:15px;font-weight:800;line-height:1;margin-bottom:7px;}
+  .live-shopping-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  .live-shopping-buy,.live-shopping-cart{
+    height:23px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    font-size:8.7px;font-weight:800;line-height:1;
+  }
+  .live-shopping-buy{
+    color:#1A0800;background:linear-gradient(90deg,var(--gold),var(--orange));
+    border:1px solid rgba(255,215,0,.88);box-shadow:0 0 10px rgba(255,122,0,.18);
+  }
+  .live-shopping-cart{
+    color:#fff;background:rgba(15,7,4,.90);border:1px solid rgba(255,122,0,.68);
+  }
+
+
+  /* ---------- v33 truck playback stability ---------- */
+  .feed-track > .feed-card:first-child .feed-video{
+    transform:translateZ(0);
+    backface-visibility:hidden;
+  }
+
+
+  /* ---------- v34 seamless wrap poster ---------- */
+  .loop-poster{
+    object-fit:cover;
+    pointer-events:none;
+  }
+
+
+  /* ---------- v35 LIVE shopping flame palette ---------- */
+  .live-shopping-product-card{
+    background:linear-gradient(135deg,rgba(63,15,5,.97) 0%,rgba(30,8,3,.96) 50%,rgba(10,6,5,.95) 100%) !important;
+    border:1px solid rgba(255,122,0,.50) !important;
+    box-shadow:0 8px 24px rgba(0,0,0,.36),0 0 14px rgba(255,48,0,.09),inset 0 0 18px rgba(255,122,0,.05) !important;
+  }
+  .live-shopping-product-image{
+    border:1px solid rgba(255,122,0,.42) !important;
+  }
+  .live-shopping-title{color:var(--white) !important;}
+  .live-shopping-price{
+    color:var(--gold) !important;
+    text-shadow:0 0 8px rgba(255,215,0,.22) !important;
+  }
+  .live-shopping-buy{
+    color:#1A0800 !important;
+    background:linear-gradient(90deg,var(--gold) 0%,var(--orange) 62%,#ff8a00 100%) !important;
+    border:1px solid rgba(255,215,0,.95) !important;
+    box-shadow:0 0 10px rgba(255,122,0,.24) !important;
+  }
+  .live-shopping-cart{
+    color:#fff !important;
+    background:linear-gradient(180deg,rgba(42,9,4,.95),rgba(17,5,3,.95)) !important;
+    border:1px solid rgba(255,48,0,.88) !important;
+    box-shadow:inset 0 0 8px rgba(255,48,0,.07) !important;
+  }
+
+  /* ---------- v35 truck-loop masking ---------- */
+  .first-video-cover{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:1;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .10s linear;
+  }
+  .first-video-cover.show{opacity:1;}
+
+
+  /* ---------- v36 LIVE shopping button color uniformity ---------- */
+  .live-shopping-buy{
+    color:#fff !important;
+    background:var(--red) !important;
+    border:1px solid var(--red) !important;
+    box-shadow:none !important;
+  }
+
+  .live-shopping-cart{
+    color:var(--orange) !important;
+    background:rgba(20,6,0,.88) !important;
+    border:1px solid var(--orange) !important;
+    box-shadow:none !important;
+  }
+
+
+  /* ---------- v37 sharper LIVE shopping cards ---------- */
+  .live-shopping-product-card{
+    backdrop-filter:blur(3px) !important;
+    -webkit-backdrop-filter:blur(3px) !important;
+  }
+
+  .live-shopping-product-image{
+    image-rendering:auto;
+    filter:contrast(1.04) saturate(1.04);
+    transform:translateZ(0);
+  }
+
+  .live-shopping-title,
+  .live-shopping-price,
+  .live-shopping-buy,
+  .live-shopping-cart{
+    -webkit-font-smoothing:antialiased;
+    text-rendering:geometricPrecision;
+  }
+
+
+  /* ---------- v39 remove only the stray yellow video-area ember ---------- */
+  .embers-stars > .ember:nth-child(5){
+    display:none !important;
+  }
+
+
+  /* ---------- v40 unified VidStarr wordmark ---------- */
+  .vidstarr-wordmark{
+    display:inline-flex;
+    align-items:baseline;
+    gap:0 !important;
+    white-space:nowrap;
+    letter-spacing:0;
+  }
+  .vidstarr-wordmark .vid-part{color:var(--red);}
+  .vidstarr-wordmark .starr-part{color:var(--gold);}
+
+
+  /* ---------- v41 top-left wordmark: joined + correct colors ---------- */
+  .logo{
+    gap:8px !important; /* gap only between flame icon and word */
+  }
+  .top-vidstarr{
+    display:inline-flex !important;
+    flex-wrap:nowrap !important;
+    align-items:baseline !important;
+    gap:0 !important;
+    white-space:nowrap !important;
+    word-spacing:0 !important;
+    letter-spacing:0 !important;
+    line-height:1 !important;
+  }
+  .top-vidstarr .top-vid,
+  .top-vidstarr .top-starr{
+    display:inline-block !important;
+    margin:0 !important;
+    padding:0 !important;
+    letter-spacing:0 !important;
+  }
+  .top-vidstarr .top-vid{
+    color:#FF3000 !important;
+  }
+  .top-vidstarr .top-starr{
+    color:#FFD700 !important;
+  }
+
+
+  /* ---------- v42 exact top-left header wordmark ---------- */
+  nav .logo .top-vidstarr,
+  nav .logo .vidstarr-wordmark{
+    display:inline-flex !important;
+    align-items:baseline !important;
+    gap:0 !important;
+    white-space:nowrap !important;
+    word-spacing:0 !important;
+    letter-spacing:0 !important;
+  }
+  nav .logo .top-vidstarr > span,
+  nav .logo .vidstarr-wordmark > span{
+    margin:0 !important;
+    padding:0 !important;
+    letter-spacing:0 !important;
+  }
+  nav .logo .top-vid,
+  nav .logo .vid-part{
+    color:#FF3000 !important;
+  }
+  nav .logo .top-starr,
+  nav .logo .starr-part{
+    color:#FFD700 !important;
+  }
+
+
+  /* ---------- v43 exact header wordmark ---------- */
+  nav .logo{
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important; /* icon-to-word only */
+  }
+  nav .header-vidstarr{
+    display:inline !important;
+    white-space:nowrap !important;
+    word-spacing:0 !important;
+    letter-spacing:0 !important;
+    font:inherit !important;
+    line-height:1 !important;
+  }
+  nav .header-vidstarr span{
+    display:inline !important;
+    margin:0 !important;
+    padding:0 !important;
+    word-spacing:0 !important;
+    letter-spacing:0 !important;
+  }
+  nav .header-vid{color:#FF3000 !important;}
+  nav .header-starr{color:#FFD700 !important;}
+
+
+  /* ---------- v45 intro punctuation + timing ---------- */
+  #introSentence .word{
+    white-space:nowrap;
+  }
+
+
+  /* ---------- v46 final header wordmark ---------- */
+  nav .header-vidstarr .header-vid,
+  nav .header-vidstarr .header-starr{
+    color:#F5F5F5 !important;
+  }
+
+
+  
+  /* ---------- v58 gapless original moving doodles ---------- */
+  .marquee-container{
+    width:max-content !important;
+    min-width:100% !important;
+    gap:0 !important;
+  }
+
+  .marquee-strip{
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  /* Don't animate until JS has measured the strip and attached its clone. */
+  .marquee-top,
+  .marquee-bottom{
+    animation:none !important;
+  }
+
+  .marquee-top.marquee-ready{
+    animation:marqueeTopGapless 80s linear infinite !important;
+  }
+
+  .marquee-bottom.marquee-ready{
+    animation:marqueeBottomGapless 85s linear infinite !important;
+  }
+
+  @keyframes marqueeTopGapless{
+    from{transform:translateX(0);}
+    to{transform:translateX(calc(-1 * var(--marquee-width)));}
+  }
+
+  @keyframes marqueeBottomGapless{
+    from{transform:translateX(calc(-1 * var(--marquee-width)));}
+    to{transform:translateX(0);}
+  }
+
+
+  /* ---------- v59 subtler, more varied original doodles ---------- */
+  .shopping-icon.tiny{
+    width:9px !important;
+    height:9px !important;
+    opacity:.16 !important;
+  }
+  .shopping-icon.small{
+    width:12px !important;
+    height:12px !important;
+    opacity:.19 !important;
+  }
+  .shopping-icon.medium{
+    width:17px !important;
+    height:17px !important;
+    opacity:.23 !important;
+  }
+  .shopping-icon.large{
+    width:27px !important;
+    height:27px !important;
+    opacity:.25 !important;
+  }
+  .shopping-icon.hero{
+    opacity:.30 !important;
+    filter:drop-shadow(0 0 4px rgba(255,212,0,.20)) !important;
+  }
+
+
+  /* ---------- v63 pre-launch CTA ---------- */
+  .coming-soon-cta{
+    cursor:default !important;
+    user-select:none;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Shopping Icon Seamless Marquee -->
+
+<div class="background-doodles">
+  <div class="marquee-container marquee-top" id="marqueeTop"></div>
+  <div class="marquee-container marquee-bottom" id="marqueeBottom"></div>
+</div>
+
+<!-- Glowing Embers/Stars Layer -->
+<div class="embers-stars">
+  <div class="ember"></div>
+  <svg class="star-ember" viewBox="0 0 20 20" width="12" height="12" style="position:absolute; top:12%; left:25%;">
+    <polygon points="10,2 15,8 22,9 17,14 18,21 10,17 2,21 3,14 -2,9 5,8" fill="var(--gold)" opacity="0.3"/>
+  </svg>
+  <div class="ember"></div>
+  <svg class="star-ember" viewBox="0 0 20 20" width="14" height="14" style="position:absolute; top:38%; right:18%;">
+    <polygon points="10,2 15,8 22,9 17,14 18,21 10,17 2,21 3,14 -2,9 5,8" fill="var(--red)" opacity="0.3"/>
+  </svg>
+  <div class="ember"></div>
+  <svg class="star-ember" viewBox="0 0 20 20" width="11" height="11" style="position:absolute; top:62%; left:12%;">
+    <polygon points="10,2 15,8 22,9 17,14 18,21 10,17 2,21 3,14 -2,9 5,8" fill="var(--gold)" opacity="0.3"/>
+  </svg>
+  <div class="ember"></div>
+  <svg class="star-ember" viewBox="0 0 20 20" width="13" height="13" style="position:absolute; top:48%; left:32%;">
+    <polygon points="10,2 15,8 22,9 17,14 18,21 10,17 2,21 3,14 -2,9 5,8" fill="var(--red)" opacity="0.3"/>
+  </svg>
+  <div class="ember"></div>
+  <svg class="star-ember" viewBox="0 0 20 20" width="10" height="10" style="position:absolute; top:75%; right:28%;">
+    <polygon points="10,2 15,8 22,9 17,14 18,21 10,17 2,21 3,14 -2,9 5,8" fill="var(--gold)" opacity="0.3"/>
+  </svg>
+  <div class="ember"></div>
+  <div class="ember"></div>
+</div>
+
+<div id="intro">
+  <div class="intro-sentence" id="introSentence"></div>
+  <div class="intro-logo" id="introLogo">
+    <span class="vid-part">vid</span><span class="starr-part">starr</span><img class="intro-icon" id="introIcon" src="" alt="">
+  </div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <div class="logo"><img src="asset-png-1.png" alt="VidStarr"><span class="header-vidstarr"><span class="header-vid">Vid</span><span class="header-starr">Starr</span></span></div>
+      <span class="nav-cta coming-soon-cta" aria-label="VidStarr app coming soon">Coming Soon</span>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+
+
+
+
+
+
+
+
+
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow">Now in beta</div>
+        <h1>Shop Like<br>A <span class="accent">Starr.</span></h1>
+        <p class="sub">The video shopping platform where sellers go viral and buyers swipe, watch and buy - all in one tap</p>
+        <div class="cta-row">
+          <span class="btn btn-primary coming-soon-cta" aria-label="VidStarr app coming soon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M6 9l6 6 6-6"/><path d="M5 21h14" stroke-linecap="round"/></svg>
+            Coming Soon
+          </span>
+          <a href="https://forms.gle/GUcCKwFiiGvYWszw8" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Join the Waitlist</a>
+        </div>
+      </div>
+      <div class="phone-stage hero-phone-stage">
+
+
+
+
+
+
+
+
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="feed-track" id="vidstarrFeed">
+            <div class="feed-card">
+              <video class="feed-video" src="asset-mp4-1.mp4" muted playsinline preload="metadata"></video>
+              <img class="first-video-cover" id="firstVideoCover" src="asset-jpeg-1.jpg" alt="">
+              <div class="feed-shade"></div>
+              
+              <div class="feed-side-actions" aria-hidden="true">
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6s-1.6 4.2 0 5.8L12 19.2l8.8-8.8c1.6-1.6 1.6-4.2 0-5.8z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.4-4.3M8.2 13.2l7.4 4.3"/></svg></div>
+                <div class="feed-icon-btn more">•••</div>
+              </div>
+
+              <div class="feed-content">
+                <h3>TrailForce Adventure UTV</h3>
+                <span class="price-tag">$18,999</span>
+                <div class="feed-actions">
+                  <div class="feed-buy">Buy Now</div>
+                  <div class="feed-cart">Add to Cart</div>
+                </div>
+              </div>
+            </div>
+            <div class="feed-card">
+              <video class="feed-video" src="asset-mp4-2.mp4" muted playsinline preload="metadata"></video>
+              <div class="feed-shade"></div>
+              
+              <div class="feed-side-actions" aria-hidden="true">
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6s-1.6 4.2 0 5.8L12 19.2l8.8-8.8c1.6-1.6 1.6-4.2 0-5.8z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.4-4.3M8.2 13.2l7.4 4.3"/></svg></div>
+                <div class="feed-icon-btn more">•••</div>
+              </div>
+
+              <div class="feed-content">
+                <h3>Precision Pro Tool Kit</h3>
+                <span class="price-tag">$34.99</span>
+                <div class="feed-actions">
+                  <div class="feed-buy">Buy Now</div>
+                  <div class="feed-cart">Add to Cart</div>
+                </div>
+              </div>
+            </div>
+            <div class="feed-card">
+              <video class="feed-video" src="asset-mp4-3.mp4" muted playsinline preload="metadata"></video>
+              <div class="feed-shade"></div>
+              
+              <div class="feed-side-actions" aria-hidden="true">
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6s-1.6 4.2 0 5.8L12 19.2l8.8-8.8c1.6-1.6 1.6-4.2 0-5.8z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.4-4.3M8.2 13.2l7.4 4.3"/></svg></div>
+                <div class="feed-icon-btn more">•••</div>
+              </div>
+
+              <div class="feed-content">
+                <h3>Heritage Leather Oxford Shoes</h3>
+                <span class="price-tag">$129.00</span>
+                <div class="feed-actions">
+                  <div class="feed-buy">Buy Now</div>
+                  <div class="feed-cart">Add to Cart</div>
+                </div>
+              </div>
+            </div>
+            <div class="feed-card">
+              <video class="feed-video" src="asset-mp4-4.mp4" muted playsinline preload="metadata"></video>
+              <div class="feed-shade"></div>
+              
+              <div class="feed-side-actions" aria-hidden="true">
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6s-1.6 4.2 0 5.8L12 19.2l8.8-8.8c1.6-1.6 1.6-4.2 0-5.8z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.4-4.3M8.2 13.2l7.4 4.3"/></svg></div>
+                <div class="feed-icon-btn more">•••</div>
+              </div>
+
+              <div class="feed-content">
+                <h3>Regal Gold Chronograph Watch</h3>
+                <span class="price-tag">$189.00</span>
+                <div class="feed-actions">
+                  <div class="feed-buy">Buy Now</div>
+                  <div class="feed-cart">Add to Cart</div>
+                </div>
+              </div>
+            </div>
+            <div class="feed-card">
+              <video class="feed-video" src="asset-mp4-5.mp4" muted playsinline preload="metadata"></video>
+              <div class="feed-shade"></div>
+              
+              <div class="feed-side-actions" aria-hidden="true">
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6s-1.6 4.2 0 5.8L12 19.2l8.8-8.8c1.6-1.6 1.6-4.2 0-5.8z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></div>
+                <div class="feed-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.4-4.3M8.2 13.2l7.4 4.3"/></svg></div>
+                <div class="feed-icon-btn more">•••</div>
+              </div>
+
+              <div class="feed-content">
+                <h3>StarrGlow High-Shine Lip Gloss</h3>
+                <span class="price-tag">$18.00</span>
+                <div class="feed-actions">
+                  <div class="feed-buy">Buy Now</div>
+                  <div class="feed-cart">Add to Cart</div>
+                </div>
+              </div>
+            </div>
+            <div class="feed-card live-shopping-card">
+              <video class="feed-video" src="asset-mp4-6.mp4" muted playsinline preload="metadata"></video>
+              <div class="feed-shade"></div>
+
+              <div class="feed-side-actions" aria-hidden="true">
+                <div class="feed-icon-btn">
+                  <svg viewBox="0 0 24 24"><path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6s-1.6 4.2 0 5.8L12 19.2l8.8-8.8c1.6-1.6 1.6-4.2 0-5.8z"/></svg>
+                </div>
+                <div class="feed-icon-btn">
+                  <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+                </div>
+                <div class="feed-icon-btn">
+                  <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.4-4.3M8.2 13.2l7.4 4.3"/></svg>
+                </div>
+                <div class="feed-icon-btn more">•••</div>
+              </div>
+
+              <div class="live-shopping-product-card">
+                <img class="live-shopping-product-image" src="asset-jpeg-2.jpg" alt="Rose Ribbed Button-Front Dress">
+                <div class="live-shopping-product-main">
+                  <div class="live-shopping-title">Rose Ribbed Button-Front Dress</div>
+                  <div class="live-shopping-price">$42.00</div>
+                  <div class="live-shopping-buttons">
+                    <div class="live-shopping-buy">Buy Now</div>
+                    <div class="live-shopping-cart">Add to Cart</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="feed-card live-shopping-card">
+              <video class="feed-video" src="asset-mp4-7.mp4" muted playsinline preload="metadata"></video>
+              <div class="feed-shade"></div>
+
+              <div class="feed-side-actions" aria-hidden="true">
+                <div class="feed-icon-btn">
+                  <svg viewBox="0 0 24 24"><path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6s-1.6 4.2 0 5.8L12 19.2l8.8-8.8c1.6-1.6 1.6-4.2 0-5.8z"/></svg>
+                </div>
+                <div class="feed-icon-btn">
+                  <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+                </div>
+                <div class="feed-icon-btn">
+                  <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.4-4.3M8.2 13.2l7.4 4.3"/></svg>
+                </div>
+                <div class="feed-icon-btn more">•••</div>
+              </div>
+
+              <div class="live-shopping-product-card">
+                <img class="live-shopping-product-image" src="asset-jpeg-3.jpg" alt="Emerald Classic Button-Up Shirt">
+                <div class="live-shopping-product-main">
+                  <div class="live-shopping-title">Emerald Classic Button-Up Shirt</div>
+                  <div class="live-shopping-price">$58.00</div>
+                  <div class="live-shopping-buttons">
+                    <div class="live-shopping-buy">Buy Now</div>
+                    <div class="live-shopping-cart">Add to Cart</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="phone-bottom-nav" aria-hidden="true">
+            <div class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+            <div class="nav-item active"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M8 3h8M7 10h10"/><path d="M10 13l5 2.5-5 2.5z"/></svg></div>
+            <div class="nav-item nav-live"><span class="live-dot"></span><span>LIVE</span></div>
+            <div class="nav-item"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></div>
+            <div class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.6-4 3-6 7-6s6.4 2 7 6"/></svg></div>
+          </div>
+        </div>
+        <div class="swipe-hint">
+          <svg width="20" height="32" viewBox="0 0 20 32" fill="none" stroke="#FFD700" stroke-width="2"><path d="M10 30V6M3 13l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          swipe
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The loop</div>
+      <h2>One feed. Every step you need.</h2>
+      <p>No separate cart app, no leaving the video to "check the link in bio." Every product gets 30 seconds or less to show you what it's got — then it's your call.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>0:30 OR LESS</div>
+        <h3>Scroll</h3>
+        <p>Every video is capped at 30 seconds. Long enough to see the product work, short enough that you never get bored.</p>
+      </div>
+      <div class="step">
+        <div class="clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>ONE TAP</div>
+        <h3>Discover</h3>
+        <p>Price, seller, and details sit right on the video. No tapping out to a slow product page.</p>
+      </div>
+      <div class="step">
+        <div class="clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M4.5 4.5l2.2 2.2M19.5 4.5l-2.2 2.2" stroke-linecap="round"/></svg>SHOP LIVE</div>
+        <h3>Live Shopping</h3>
+        <p>Join live product drops, watch sellers demonstrate products in real time, and buy while the stream is still happening.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band" id="get">
+  <div class="cta-band-glow"></div>
+  <div class="wrap">
+    <h2>Your feed,<br>but shoppable.</h2>
+    <p>VidStarr is rolling out now. Get it as soon as it lands.</p>
+    <div class="store-row">
+      <a href="#" class="store-btn">
+        <svg viewBox="0 0 24 24" fill="#0D0D0D"><path d="M3 3l11.5 6.5L18 12l-3.5 2.5L3 21V3z"/><path d="M3 3l11.5 6.5L3 21V3z" fill="#FF3000"/></svg>
+        <span class="label-stack"><span class="small">Coming soon to</span><span class="big">Google Play</span></span>
+      </a>
+      <a href="#" class="store-btn">
+        <svg viewBox="0 0 24 24" fill="#0D0D0D"><path d="M16.5 1c.1 1.2-.4 2.4-1.1 3.2-.8.9-2 1.6-3.1 1.5-.1-1.1.4-2.3 1.1-3.1C14.2 1.6 15.4 1 16.5 1zM20.7 17.2c-.4.9-.9 1.8-1.6 2.6-1 1.2-2 2.4-3.5 2.4-1.4 0-1.9-.9-3.5-.9-1.6 0-2.2.9-3.5.9-1.4 0-2.5-1.3-3.5-2.5C2.9 16.9 1.8 13 3.3 10.3c.8-1.4 2.2-2.3 3.7-2.3 1.4 0 2.3.9 3.5.9 1.1 0 1.8-.9 3.5-.9 1.3 0 2.7.7 3.6 1.9-3.2 1.8-2.7 6.3.6 7.3-.4.8-.4 1-1.5 2z"/></svg>
+        <span class="label-stack"><span class="small">Coming soon to</span><span class="big">App Store</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="logo" style="justify-content:center; margin-bottom:6px;"><img src="asset-png-2.png" alt="VidStarr"> <span class="top-vidstarr"><span class="top-vid">Vid</span><span class="top-starr">Starr</span></span>
+  Shop Like a Starr
+</footer>
+
+
+<script>
+(() => {
+  const track = document.getElementById('vidstarrFeed');
+  if (!track) return;
+
+  const originals = Array.from(track.querySelectorAll('.feed-card'));
+  if (!originals.length) return;
+
+  const firstCover = document.getElementById('firstVideoCover');
+
+  const firstClone = originals[0].cloneNode(true);
+  firstClone.setAttribute('aria-hidden', 'true');
+
+  const cloneVideo = firstClone.querySelector('video');
+  const cloneCover = firstClone.querySelector('#firstVideoCover');
+  if (cloneCover) cloneCover.remove();
+
+  if (cloneVideo) {
+    const poster = document.createElement('img');
+    poster.className = 'feed-video loop-poster';
+    poster.src = firstCover ? firstCover.src : '';
+    poster.alt = '';
+    cloneVideo.replaceWith(poster);
+  }
+
+  track.appendChild(firstClone);
+
+  let index = 0;
+  let locked = false;
+  let started = false;
+  const HOLD_MS = 2000;
+  const TRANSITION_MS = 550;
+
+  const cards = () => Array.from(track.querySelectorAll('.feed-card'));
+
+  function stopAllVideos(){
+    cards().forEach(card => {
+      const video = card.querySelector('video');
+      if (video) video.pause();
+    });
+  }
+
+  function getVideo(i){
+    const card = cards()[i];
+    return card ? card.querySelector('video') : null;
+  }
+
+  function safePlay(video){
+    if (!video) return;
+    const p = video.play();
+    if (p && p.catch) p.catch(() => {});
+  }
+
+  function playVideoAt(i, reset = true){
+    stopAllVideos();
+    const video = getVideo(i);
+    if (!video) return;
+    if (reset){
+      try { video.currentTime = 0; } catch(e) {}
+    }
+    safePlay(video);
+  }
+
+  function revealTruck(firstVideo){
+    if (!firstVideo) return;
+    if (firstCover) firstCover.classList.add('show');
+
+    firstVideo.pause();
+    try { firstVideo.currentTime = 0; } catch(e) {}
+
+    const resume = () => {
+      safePlay(firstVideo);
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          if (firstCover) firstCover.classList.remove('show');
+        });
+      }, 160);
+    };
+
+    if (firstVideo.readyState >= 2) {
+      resume();
+    } else {
+      firstVideo.addEventListener('loadeddata', resume, {once:true});
+    }
+  }
+
+  function advance(){
+    if (locked) return;
+    locked = true;
+
+    index += 1;
+    track.style.transition = 'transform .55s cubic-bezier(.22,.61,.36,1)';
+    track.style.transform = `translateY(-${index * 100}%)`;
+
+    if (index < originals.length){
+      playVideoAt(index);
+    } else {
+      stopAllVideos();
+    }
+
+    if (index === originals.length){
+      setTimeout(() => {
+        const firstVideo = getVideo(0);
+
+        // Keep the identical opening frame visible before the reset happens.
+        if (firstCover) firstCover.classList.add('show');
+        if (firstVideo){
+          firstVideo.pause();
+          try { firstVideo.currentTime = 0; } catch(e) {}
+        }
+
+        // Instant jump from still clone to covered real truck card.
+        track.style.transition = 'none';
+        index = 0;
+        track.style.transform = 'translateY(0)';
+        void track.offsetHeight;
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            revealTruck(firstVideo);
+            locked = false;
+          });
+        });
+      }, TRANSITION_MS + 40);
+    } else {
+      setTimeout(() => { locked = false; }, TRANSITION_MS + 40);
+    }
+  }
+
+  function startFeed(){
+    if (started) return;
+    started = true;
+    index = 0;
+    track.style.transition = 'none';
+    track.style.transform = 'translateY(0)';
+    revealTruck(getVideo(0));
+    setInterval(advance, HOLD_MS + TRANSITION_MS);
+  }
+
+  const intro = document.getElementById('intro');
+  if (!intro || intro.classList.contains('hide')){
+    startFeed();
+  } else {
+    const observer = new MutationObserver(() => {
+      if (intro.classList.contains('hide')){
+        observer.disconnect();
+        startFeed();
+      }
+    });
+    observer.observe(intro, {attributes:true, attributeFilter:['class']});
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!started) return;
+    if (document.hidden){
+      stopAllVideos();
+    } else {
+      playVideoAt(index, false);
+    }
+  });
+})();
+</script>
+
+</body>
+<script>
+(function(){
+  var questions = [
+    ["what","if","you","knew","a","product","in","30","seconds","or","less?"],
+    ["what","if","you","could","watch","a","launch","live?"]
+  ];
+
+  var container = document.getElementById('introSentence');
+  var logo = document.getElementById('introLogo');
+  var intro = document.getElementById('intro');
+  var icon = document.getElementById('introIcon');
+
+  var navIcon = document.querySelector('.logo img');
+  if(navIcon){ icon.src = navIcon.src; }
+
+  function buildQuestion(words){
+    container.innerHTML = '';
+    return words.map(function(word){
+      var span = document.createElement('span');
+      span.className = 'word';
+      span.textContent = word;
+      container.appendChild(span);
+      return span;
+    });
+  }
+
+  function showQuestion(words, done){
+    var spans = buildQuestion(words);
+    spans.forEach(function(span, i){
+      setTimeout(function(){
+        span.classList.add('show');
+      }, i * 115);
+    });
+
+    var revealDuration = (spans.length - 1) * 115 + 550;
+
+    setTimeout(function(){
+      spans.forEach(function(span){
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(-6px)';
+      });
+
+      setTimeout(function(){
+        container.innerHTML = '';
+        done();
+      }, 320);
+    }, revealDuration + 900);
+  }
+
+  function showLogoAndExit(){
+    container.innerHTML = '';
+    logo.classList.add('show');
+
+    setTimeout(function(){
+      icon.classList.add('show');
+    }, 280);
+
+    setTimeout(function(){
+      intro.classList.add('hide');
+    }, 1450);
+  }
+
+  // Exactly two questions, then immediately move to the logo/main page.
+  showQuestion(questions[0], function(){
+    showQuestion(questions[1], function(){
+      showLogoAndExit();
+    });
+  });
+})();
+</script>
+
+
+<script>
+(() => {
+const icons = [
+    { id: 'bag1', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6h12v14H6z" stroke="currentColor"/><path d="M9 6V4c0-1 1-2 2-2s2 1 2 2v2" stroke="currentColor"/></svg>', sizes: ['tiny', 'small', 'medium'] },
+    { id: 'bag2', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 8h14v12H5z" stroke="currentColor"/><path d="M8 8V5c0-.5.5-1 1-1s1 .5 1 1v3M14 8V5c0-.5.5-1 1-1s1 .5 1 1v3" stroke="currentColor"/></svg>', sizes: ['small', 'medium'] },
+    { id: 'cart1', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M2 3h2l2 16h14l2-12H6" stroke="currentColor"/><circle cx="9" cy="21" r="1" fill="currentColor"/><circle cx="18" cy="21" r="1" fill="currentColor"/></svg>', sizes: ['medium', 'large'] },
+    { id: 'cart2', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 4h18l-2 14H5L3 4z" stroke="currentColor"/><circle cx="8" cy="19" r="1.5" fill="currentColor"/><circle cx="16" cy="19" r="1.5" fill="currentColor"/></svg>', sizes: ['small', 'medium'] },
+    { id: 'gift', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 8h16v12H4z" stroke="currentColor"/><path d="M12 8v12M4 12h16" stroke="currentColor"/><rect x="8" y="2" width="8" height="6" stroke="currentColor"/></svg>', sizes: ['tiny', 'small', 'medium', 'large'] },
+    { id: 'tag', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M2 12l8-8h10v8l-8 8H2z" stroke="currentColor"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg>', sizes: ['small', 'medium', 'large'] },
+    { id: 'card', svg: '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="14" rx="2" stroke="currentColor"/><path d="M2 9h20M5 15h3" stroke="currentColor"/></svg>', sizes: ['medium', 'large'] },
+    { id: 'package', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 5l9-2 9 2v12l-9 2-9-2z" stroke="currentColor"/><path d="M12 3v10" stroke="currentColor"/><path d="M3 5l9 3 9-3" stroke="currentColor"/></svg>', sizes: ['tiny', 'small', 'medium', 'large'] },
+    { id: 'hanger', svg: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="3" r="1.5" fill="currentColor"/><path d="M8 5l4-2 4 2v14H8z" stroke="currentColor"/><path d="M12 5v14" stroke="currentColor"/></svg>', sizes: ['small', 'medium'] },
+    { id: 'sneaker', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 14h16L14 8H6z" stroke="currentColor"/><path d="M4 14c0 2 2 4 8 4s8-2 8-4" stroke="currentColor"/><path d="M7 11v3" stroke="currentColor"/></svg>', sizes: ['medium', 'large'] },
+    { id: 'watch', svg: '<svg viewBox="0 0 24 24" fill="none"><rect x="7" y="4" width="10" height="10" rx="2" stroke="currentColor"/><path d="M12 7v4l2 1" stroke="currentColor"/><rect x="10" y="2" width="4" height="2" stroke="currentColor"/><rect x="10" y="16" width="4" height="2" stroke="currentColor"/></svg>', sizes: ['small', 'medium'] },
+    { id: 'lipstick', svg: '<svg viewBox="0 0 24 24" fill="none"><rect x="8" y="10" width="8" height="10" rx="1" fill="#FF7A00" opacity="0.6"/><rect x="7" y="8" width="10" height="4" stroke="currentColor"/><path d="M8 8l.5-2h7l.5 2" stroke="currentColor"/></svg>', sizes: ['tiny', 'small'] },
+    { id: 'qrcode', svg: '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="8" height="8" stroke="currentColor"/><rect x="14" y="2" width="8" height="8" stroke="currentColor"/><rect x="2" y="14" width="8" height="8" stroke="currentColor"/><rect x="14" y="14" width="8" height="8" stroke="currentColor"/><circle cx="18" cy="18" r="1" fill="currentColor"/></svg>', sizes: ['small', 'medium', 'large'] },
+    { id: 'receipt', svg: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="12" height="18" stroke="currentColor"/><line x1="5" y1="5" x2="13" y2="5" stroke="currentColor"/><line x1="5" y1="8" x2="13" y2="8" stroke="currentColor"/><line x1="5" y1="11" x2="13" y2="11" stroke="currentColor"/></svg>', sizes: ['tiny', 'small', 'medium'] },
+    { id: 'wishlist', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 4h18v14H3z" stroke="currentColor"/><path d="M6 7l3-2 3 2M15 7l3-2 3 2" stroke="currentColor"/><path d="M3 11h18" stroke="currentColor"/></svg>', sizes: ['small', 'medium'] },
+    { id: 'box', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 5l9-2 9 2v12l-9 2-9-2z" stroke="currentColor"/><path d="M12 3v8M3 5l9 3 9-3" stroke="currentColor"/></svg>', sizes: ['tiny', 'small', 'medium', 'large'] },
+    { id: 'heart', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.5"/></svg>', sizes: ['tiny', 'small', 'medium', 'large'] },
+    { id: 'dollar', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9a4 4 0 0 0 0 8h8a4 4 0 0 1 0 8H7" stroke="currentColor" stroke-width="1.5"/></svg>', sizes: ['small', 'medium', 'large'] },
+    { id: 'flame', svg: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2s-1 2-1 4c0 2.5 2 4 2 7s-1 5-3 7c-1-1-2-3-2-5 0-2.5-2-4-2-7 0-2 1-4 1-4s0 2.5-2 5c-1-2-1-5-1-5s-1 1-1 4c0 3 2 6 4 8 2 2 3 1 4 1s2 1 4-1c2-2 4-5 4-8 0-3-1-4-1-4s1 2 1 4c0 2 1 4 2 5-2-2-3-4-3-7 0-3 2-5 2-7 0-2-1-4-1-4z" stroke="currentColor" stroke-width="1.5"/></svg>', sizes: ['tiny', 'small', 'medium'] },
+  ];
+
+  function createIconSvg(icon, size) {
+    const div = document.createElement('div');
+    div.className = `shopping-icon ${size}`;
+    div.innerHTML = icon.svg;
+    return div;
+  }
+
+  function generateMarqueeStrip(icons, stripHeight) {
+    const strip = document.createElement('div');
+    strip.className = 'marquee-strip';
+    strip.style.height = stripHeight + 'px';
+
+    const sizeMap = { tiny: 9, small: 12, medium: 17, large: 27 };
+    const weightedSizes = [
+      'tiny','tiny','tiny','tiny','tiny',
+      'small','small','small',
+      'medium','medium',
+      'large'
+    ];
+
+    const targetWidth = Math.max(window.innerWidth * 1.35, 1900);
+
+    let currentX = 0;
+    let maxX = 0;
+
+    while (currentX < targetWidth) {
+      const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+
+      let size = weightedSizes[Math.floor(Math.random() * weightedSizes.length)];
+      if (!randomIcon.sizes.includes(size)) {
+        size = randomIcon.sizes[Math.floor(Math.random() * randomIcon.sizes.length)];
+      }
+
+      const sizeValue = sizeMap[size];
+      const spacing = Math.max(7, sizeValue * (0.7 + Math.random() * 0.85));
+
+      const icon = createIconSvg(randomIcon, size);
+      icon.style.left = currentX + 'px';
+      icon.style.top = '50%';
+      icon.style.transform = 'translateY(-50%)';
+
+      if (size === 'large' && Math.random() < 0.06) {
+        icon.classList.add('hero');
+      }
+
+      strip.appendChild(icon);
+      currentX += spacing;
+      maxX = Math.max(maxX, currentX + sizeValue);
+    }
+
+    strip.style.width = Math.ceil(maxX) + 'px';
+    return strip;
+  }
+
+  // Ensure DOM layout pass is complete before measuring dimensions
+  function initMarquee() {
+    const containers = document.querySelectorAll('.marquee-container');
+
+    requestAnimationFrame(() => {
+      containers.forEach(container => {
+        const strip = container.querySelector('.marquee-strip');
+        if (!strip) return;
+
+        // Remove any stale clone if this function ever runs again.
+        while (container.children.length > 1) {
+          container.removeChild(container.lastElementChild);
+        }
+
+        const computedWidth = Math.ceil(strip.getBoundingClientRect().width || strip.scrollWidth || 1900);
+        container.style.setProperty('--marquee-width', `${computedWidth}px`);
+
+        // Exact duplicate placed directly after the original.
+        const clone = strip.cloneNode(true);
+        clone.setAttribute('aria-hidden', 'true');
+        container.appendChild(clone);
+
+        // Start only after both halves exist.
+        container.classList.add('marquee-ready');
+      });
+    });
+  }
+  
+  // Generate initial strips on both containers
+  function generateInitialStrips() {
+    const topContainer = document.getElementById('marqueeTop');
+    const bottomContainer = document.getElementById('marqueeBottom');
+    
+    if (topContainer) {
+      const topStrip = generateMarqueeStrip(icons, 140);
+      topContainer.appendChild(topStrip);
+    }
+    
+    if (bottomContainer) {
+      const bottomStrip = generateMarqueeStrip(icons, 140);
+      bottomContainer.appendChild(bottomStrip);
+    }
+  }
+  
+  // Bind initializing hook across the window load boundary
+  window.addEventListener('DOMContentLoaded', () => {
+    generateInitialStrips();
+    // Enforce a small fallback delay to allow dynamic content to settle
+    setTimeout(initMarquee, 50);
+  });
+})();
+</script>
+</html>
