@@ -80,7 +80,7 @@
     position:absolute;
     display:flex; align-items:center; gap:0;
     font-family:'Righteous', sans-serif;
-    font-size:clamp(34px, 7.5vw, 60px);
+    font-size:clamp(54px, 11vw, 96px);
     text-transform:lowercase;
     opacity:0;
   }
@@ -1401,6 +1401,104 @@
     user-select:none;
   }
 
+
+
+  /* ---------- v65 logo hue/glow refresh: layout unchanged ---------- */
+  :root{
+    --vid-red:#ff4a1f;
+    --vid-red-deep:#ff2f00;
+    --starr-gold:#ffe45c;
+    --starr-orange:#ffb300;
+    --logo-glow-red:rgba(255,84,24,.34);
+    --logo-glow-gold:rgba(255,190,50,.28);
+  }
+
+  .intro-logo,
+  nav .header-vidstarr,
+  .top-vidstarr,
+  .vidstarr-wordmark{
+    font-family:'Righteous', sans-serif !important;
+    letter-spacing:0 !important;
+  }
+
+  .intro-logo .vid-part,
+  .top-vidstarr .top-vid,
+  nav .logo .top-vid,
+  nav .logo .vid-part,
+  nav .header-vidstarr .header-vid,
+  .vidstarr-wordmark .vid-part{
+    background:linear-gradient(180deg,#ff7a33 0%, #ff4a1f 38%, #ff2f00 100%) !important;
+    -webkit-background-clip:text !important;
+    background-clip:text !important;
+    -webkit-text-fill-color:transparent !important;
+    color:transparent !important;
+    text-shadow:0 0 10px rgba(255,86,0,.18), 0 0 24px rgba(255,70,0,.10) !important;
+  }
+
+  .intro-logo .starr-part,
+  .top-vidstarr .top-starr,
+  nav .logo .top-starr,
+  nav .logo .starr-part,
+  nav .header-vidstarr .header-starr,
+  .vidstarr-wordmark .starr-part{
+    background:linear-gradient(180deg,#fff07f 0%, #ffd83b 35%, #ffb300 75%, #ff8900 100%) !important;
+    -webkit-background-clip:text !important;
+    background-clip:text !important;
+    -webkit-text-fill-color:transparent !important;
+    color:transparent !important;
+    text-shadow:0 0 10px rgba(255,202,64,.18), 0 0 24px rgba(255,152,0,.10) !important;
+  }
+
+  .intro-logo,
+  nav .header-vidstarr{
+    filter: drop-shadow(0 0 12px rgba(255,92,0,.08));
+  }
+
+
+  /* ---------- v66 replace text wordmarks with official wordmark image ---------- */
+  .intro-logo{
+    display:flex !important;
+    align-items:center !important;
+    gap:0.24em !important;
+  }
+  .intro-logo .intro-wordmark{
+    display:block;
+    height:1.02em;
+    width:auto;
+    filter:drop-shadow(0 0 10px rgba(255,128,0,.18));
+  }
+  .intro-logo .intro-icon{
+    width:0;
+    height:auto;
+    opacity:0;
+    margin-right:0;
+    order:0;
+    border-radius:14px;
+    flex:0 0 auto;
+    transition:width .4s ease, opacity .4s ease, margin-right .4s ease;
+  }
+  .intro-logo .intro-icon.show{
+    width:1.5em;
+    height:1.5em;
+    opacity:1;
+    margin-right:0.02em;
+  }
+  .logo{
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+  }
+  .logo .nav-wordmark{
+    display:block;
+    height:36px;
+    width:auto;
+    filter:drop-shadow(0 0 8px rgba(255,140,0,.16));
+  }
+  @media (max-width: 640px){
+    .logo .nav-wordmark{
+      height:30px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -1441,13 +1539,14 @@
 <div id="intro">
   <div class="intro-sentence" id="introSentence"></div>
   <div class="intro-logo" id="introLogo">
-    <span class="vid-part">vid</span><span class="starr-part">starr</span><img class="intro-icon" id="introIcon" src="" alt="">
+    <img class="intro-icon" id="introIcon" src="" alt="VidStarr icon">
+    <img class="intro-wordmark" src="assets/png-1.png" alt="VidStarr">
   </div>
 </div>
 
 <nav>
   <div class="wrap">
-    <div class="logo"><img src="asset-png-1.png" alt="VidStarr"><span class="header-vidstarr"><span class="header-vid">Vid</span><span class="header-starr">Starr</span></span></div>
+    <div class="logo"><img src="assets/png-2.png" alt="VidStarr"><img class="nav-wordmark" src="assets/png-1.png" alt="VidStarr"></div>
       <span class="nav-cta coming-soon-cta" aria-label="VidStarr app coming soon">Coming Soon</span>
   </div>
 </nav>
@@ -1471,7 +1570,6 @@
         <p class="sub">The video shopping platform where sellers go viral and buyers swipe, watch and buy - all in one tap</p>
         <div class="cta-row">
           <span class="btn btn-primary coming-soon-cta" aria-label="VidStarr app coming soon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v13M6 9l6 6 6-6"/><path d="M5 21h14" stroke-linecap="round"/></svg>
             Coming Soon
           </span>
           <a href="https://forms.gle/GUcCKwFiiGvYWszw8" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Join the Waitlist</a>
@@ -1490,8 +1588,8 @@
           <div class="phone-notch"></div>
           <div class="feed-track" id="vidstarrFeed">
             <div class="feed-card">
-              <video class="feed-video" src="asset-mp4-1.mp4" muted playsinline preload="metadata"></video>
-              <img class="first-video-cover" id="firstVideoCover" src="asset-jpeg-1.jpg" alt="">
+              <video class="feed-video" src="assets/mp4-1.mp4" muted playsinline preload="metadata"></video>
+              <img class="first-video-cover" id="firstVideoCover" src="assets/jpg-1.jpg" alt="">
               <div class="feed-shade"></div>
               
               <div class="feed-side-actions" aria-hidden="true">
@@ -1511,7 +1609,7 @@
               </div>
             </div>
             <div class="feed-card">
-              <video class="feed-video" src="asset-mp4-2.mp4" muted playsinline preload="metadata"></video>
+              <video class="feed-video" src="assets/mp4-2.mp4" muted playsinline preload="metadata"></video>
               <div class="feed-shade"></div>
               
               <div class="feed-side-actions" aria-hidden="true">
@@ -1531,7 +1629,7 @@
               </div>
             </div>
             <div class="feed-card">
-              <video class="feed-video" src="asset-mp4-3.mp4" muted playsinline preload="metadata"></video>
+              <video class="feed-video" src="assets/mp4-3.mp4" muted playsinline preload="metadata"></video>
               <div class="feed-shade"></div>
               
               <div class="feed-side-actions" aria-hidden="true">
@@ -1551,7 +1649,7 @@
               </div>
             </div>
             <div class="feed-card">
-              <video class="feed-video" src="asset-mp4-4.mp4" muted playsinline preload="metadata"></video>
+              <video class="feed-video" src="assets/mp4-4.mp4" muted playsinline preload="metadata"></video>
               <div class="feed-shade"></div>
               
               <div class="feed-side-actions" aria-hidden="true">
@@ -1571,7 +1669,7 @@
               </div>
             </div>
             <div class="feed-card">
-              <video class="feed-video" src="asset-mp4-5.mp4" muted playsinline preload="metadata"></video>
+              <video class="feed-video" src="assets/mp4-5.mp4" muted playsinline preload="metadata"></video>
               <div class="feed-shade"></div>
               
               <div class="feed-side-actions" aria-hidden="true">
@@ -1591,7 +1689,7 @@
               </div>
             </div>
             <div class="feed-card live-shopping-card">
-              <video class="feed-video" src="asset-mp4-6.mp4" muted playsinline preload="metadata"></video>
+              <video class="feed-video" src="assets/mp4-6.mp4" muted playsinline preload="metadata"></video>
               <div class="feed-shade"></div>
 
               <div class="feed-side-actions" aria-hidden="true">
@@ -1608,7 +1706,7 @@
               </div>
 
               <div class="live-shopping-product-card">
-                <img class="live-shopping-product-image" src="asset-jpeg-2.jpg" alt="Rose Ribbed Button-Front Dress">
+                <img class="live-shopping-product-image" src="assets/jpg-2.jpg" alt="Rose Ribbed Button-Front Dress">
                 <div class="live-shopping-product-main">
                   <div class="live-shopping-title">Rose Ribbed Button-Front Dress</div>
                   <div class="live-shopping-price">$42.00</div>
@@ -1621,7 +1719,7 @@
             </div>
 
             <div class="feed-card live-shopping-card">
-              <video class="feed-video" src="asset-mp4-7.mp4" muted playsinline preload="metadata"></video>
+              <video class="feed-video" src="assets/mp4-7.mp4" muted playsinline preload="metadata"></video>
               <div class="feed-shade"></div>
 
               <div class="feed-side-actions" aria-hidden="true">
@@ -1638,7 +1736,7 @@
               </div>
 
               <div class="live-shopping-product-card">
-                <img class="live-shopping-product-image" src="asset-jpeg-3.jpg" alt="Emerald Classic Button-Up Shirt">
+                <img class="live-shopping-product-image" src="assets/jpg-3.jpg" alt="Emerald Classic Button-Up Shirt">
                 <div class="live-shopping-product-main">
                   <div class="live-shopping-title">Emerald Classic Button-Up Shirt</div>
                   <div class="live-shopping-price">$58.00</div>
@@ -1714,7 +1812,7 @@
 </section>
 
 <footer>
-  <span class="logo" style="justify-content:center; margin-bottom:6px;"><img src="asset-png-2.png" alt="VidStarr"> <span class="top-vidstarr"><span class="top-vid">Vid</span><span class="top-starr">Starr</span></span>
+  <span class="logo" style="justify-content:center; margin-bottom:6px;"><img src="assets/png-2.png" alt="VidStarr"> <img class="nav-wordmark" src="assets/png-1.png" alt="VidStarr">
   Shop Like a Starr
 </footer>
 
