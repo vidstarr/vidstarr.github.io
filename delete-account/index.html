@@ -2,18 +2,92 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Delete Your VidStarr Account</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delete your VidStarr account</title>
+<meta name="description" content="How to delete your VidStarr account and what happens to your data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: Arial, sans-serif; background:#0D0D0D; color:#FFFFFF; padding:40px; max-width:600px; margin:auto; line-height:1.6; }
-  h1 { color:#FF3000; }
-  a { color:#FFD700; }
+:root{
+  --bg:#0D0302;
+  --card:#1A0C08;
+  --line:#3A1C12;
+  --text:#FFFFFF;
+  --muted:#C9B8B2;
+  --orange:#F18602;
+  --mid:#F15502;
+  --red:#E52302;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;padding:48px 16px 64px}
+.wrap{max-width:680px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;margin-bottom:36px}
+.flame{width:34px;height:34px;border-radius:10px;background:linear-gradient(90deg,var(--orange),var(--mid),var(--red));display:flex;align-items:center;justify-content:center;font-size:18px}
+h1{font-size:32px;line-height:1.25;margin-bottom:12px}
+.lead{color:var(--muted);font-size:17px;margin-bottom:32px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:20px}
+.card h2{font-size:19px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.tag{font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;background:linear-gradient(90deg,var(--orange),var(--mid),var(--red));color:#fff}
+ol,ul{padding-left:22px;color:var(--muted)}
+li{margin-bottom:8px}
+li strong{color:var(--text)}
+p{color:var(--muted)}
+p+p{margin-top:10px}
+.btn{display:inline-block;margin-top:16px;padding:12px 26px;border-radius:30px;background:linear-gradient(90deg,var(--orange),var(--mid),var(--red));color:#fff;font-weight:700;text-decoration:none}
+.btn:hover{opacity:.9}
+.email{color:var(--orange);font-weight:500;text-decoration:none}
+.foot{margin-top:36px;font-size:13px;color:#8C7A74;text-align:center}
+@media (max-width:480px){h1{font-size:26px}.card{padding:20px}}
 </style>
 </head>
 <body>
-<h1>VidStarr — Delete Your Account</h1>
-<p>To request deletion of your VidStarr account and associated data, email <a href="mailto:viddstarr@gmail.com">viddstarr@gmail.com</a> with the subject line "Account Deletion Request" and include your account email address.</p>
-<p>Upon request, we will delete your account information, including your name, email, saved products, and cart data, within 30 days. Product listings you created as a seller may be retained for a limited period for record-keeping purposes before being permanently removed.</p>
-<p>For questions, contact <a href="mailto:viddstarr@gmail.com">viddstarr@gmail.com</a>.</p>
+<main class="wrap">
+
+  <div class="brand"><span class="flame">★</span>VidStarr</div>
+
+  <h1>Delete your VidStarr account</h1>
+  <p class="lead">You can delete your VidStarr account and the data linked to it at any time. Choose the option that works best for you.</p>
+
+  <section class="card">
+    <h2>Option 1 <span class="tag">Fastest</span></h2>
+    <p>Delete your account inside the VidStarr app:</p>
+    <ol style="margin-top:12px">
+      <li>Open <strong>VidStarr</strong> and log in.</li>
+      <li>Tap the <strong>profile icon</strong> at the top right.</li>
+      <li>Scroll down and tap <strong>Delete account</strong>.</li>
+      <li>Tap <strong>Delete</strong> to confirm.</li>
+    </ol>
+    <p style="margin-top:12px">Your account is deleted right away and you are logged out.</p>
+  </section>
+
+  <section class="card">
+    <h2>Option 2</h2>
+    <p>No longer have the app? Send us an email from the address linked to your VidStarr account with the subject <strong style="color:var(--text)">Delete my account</strong>.</p>
+    <a class="btn" href="mailto:viddstarr@gmail.com?subject=Delete%20my%20account">Email viddstarr@gmail.com</a>
+    <p style="margin-top:16px">We will confirm your request and delete your account within 30 days.</p>
+  </section>
+
+  <section class="card">
+    <h2>What we delete</h2>
+    <ul>
+      <li>Your account and login details</li>
+      <li>Your profile information</li>
+      <li>Comments and reports you submitted</li>
+      <li>Items in your cart</li>
+      <li>Products and videos you listed, if you are a seller</li>
+      <li>Device information used for notifications</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>What we keep</h2>
+    <p>Order and payment records are kept so we can handle payments, refunds, disputes, and tax and legal requirements. Your name and account are removed from these records when your account is deleted.</p>
+    <p>Payments on VidStarr are processed by Stripe, which keeps its own records under its privacy policy.</p>
+  </section>
+
+  <p class="foot">VidStarr · Questions? <a class="email" href="mailto:viddstarr@gmail.com">viddstarr@gmail.com</a></p>
+
+</main>
 </body>
 </html>
